@@ -35,6 +35,7 @@
   #stageWrap { text-align: center; }
   #stage { display: inline-block; background: #000; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 4px 18px rgba(0,0,0,.25); }
   #stage iframe { display: block; border: 0; background: #fff; }
+  #stage:fullscreen { background: #000; }
   #timer { font-size: 24px; font-weight: bold; font-family: monospace; direction: ltr; }
   .rec-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #d43d2a; margin-left: 6px; animation: blink 1s infinite; vertical-align: middle; }
   @keyframes blink { 50% { opacity: .2; } }
@@ -94,6 +95,7 @@
       <label>مدت ضبط (ثانیه):</label>
       <input type="number" id="durInput" value="20" min="1" max="300">
       <button class="btn-light" id="restartBtn">🔄 پخش از اول</button>
+      <button class="btn-light" id="fsBtn">⛶ تمام‌صفحه</button>
     </div>
     <div id="stageWrap" style="margin-top:14px">
       <div id="stage"><iframe id="preview" width="1280" height="720" title="preview"></iframe></div>
@@ -128,7 +130,8 @@
     <p class="note">
       • ضبط <b>هم‌زمان (real-time)</b> انجام می‌شه: انیمیشن ۲۰ ثانیه‌ای، ۲۰ ثانیه طول می‌کشه تا ضبط بشه.<br>
       • فایل‌های HTML <b>صدا ندارن</b>، پس ویدیوی خروجی هم بی‌صداست — اگه موزیک می‌خوای، بعداً تو پریمیر اضافه کن.<br>
-      • بهترین تجربه روی <b>کامپیوتر با Chrome</b> است؛ روی موبایل هم باز می‌شه ولی ضبط تب محدودتره.<br>
+      • روی <b>گوشی</b>: ضبط داخل مرورگر کار نمی‌کنه — هیچ مرورگر موبایلی ضبط تب رو پشتیبانی نمی‌کنه. پیش‌نمایش رو «تمام‌صفحه» کن و با Screen Record خود گوشی ضبط کن (اندروید: دوبار از بالا بکش پایین ← Screen Record؛ آیفون: کنترل‌سنتر ← دکمه ضبط صفحه).<br>
+      • بهترین تجربه روی <b>کامپیوتر با Chrome</b> است؛ اونجا دکمه قرمز «شروع ضبط» مستقیم کار می‌کنه.<br>
       • WebM رو یوتیوب و تلگرام قبول می‌کنن؛ اگه MP4 خواستی دکمه تبدیل رو بزن (اولین بار یه فایل ~۳۰ مگابایتی دانلود می‌شه).<br>
       • اگه انیمیشنت عکس از اینترنت لود می‌کنه، موقع ضبط اینترنت باید وصل باشه.
     </p>
@@ -174,6 +177,10 @@
     + 'p{position:absolute;bottom:12%;width:100%;text-align:center;color:#9fb3c8;font-size:28px;margin:0}'
     + '</style></head><body><h1>HTML to Video</h1><div class="ball"></div><p>sample animation — 5s loop</p></body></html>';
 
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 0 && window.innerWidth < 820);
+  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+  var MOBILE_GUIDE = '📱 ضبط داخل مرورگر روی گوشی کار نمی‌کنه — هیچ مرورگر موبایلی (کروم، فایرفاکس، سافاری) ضبط تب رو پشتیبانی نمی‌کنه. راهش: «تمام‌صفحه» رو بزن و با Screen Record خود گوشی ضبط کن (اندروید: دوبار از بالا بکش پایین ← Screen Record؛ آیفون: کنترل‌سنتر ← دکمه ضبط صفحه). روی کامپیوتر با Chrome همین دکمه قرمز کار می‌کنه.';
+
   function setStatus(msg, isErr){
     statusEl.innerHTML = msg;
     statusEl.className = isErr ? 'err' : '';
@@ -184,12 +191,21 @@
     var parts = sizeSel.value.split('x');
     var w = +parts[0], h = +parts[1];
     preview.width = w; preview.height = h;
-    var avail = stageWrap.clientWidth || 760;
-    var scale = Math.min(1, avail / w);
+    var fs = !!document.fullscreenElement;
+    var availW = fs ? window.innerWidth : (stageWrap.clientWidth || 760);
+    var availH = fs ? window.innerHeight : Infinity;
+    var scale = Math.min(availW / w, availH / h);
+    if (!fs) scale = Math.min(1, scale);
     stage.style.width = (w * scale) + 'px';
     stage.style.height = (h * scale) + 'px';
     preview.style.transform = 'scale(' + scale + ')';
     preview.style.transformOrigin = 'top right';
+  }
+
+  function toggleFullscreen(){
+    if (document.fullscreenElement) { document.exitFullscreen(); return; }
+    if (stage.requestFullscreen) { var p = stage.requestFullscreen(); if (p && p.catch) p.catch(function(){}); }
+    else if (stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
   }
 
   var resizeTO = null;
@@ -268,8 +284,8 @@
 
   recBtn.addEventListener('click', async function(){
     if (!hasContent) { setStatus('اول یه فایل HTML بده.', true); return; }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-      setStatus('مرورگرت ضبط صفحه رو پشتیبانی نمی‌کنه — با Chrome روی کامپیوتر امتحان کن.', true);
+    if (!canRecord) {
+      setStatus(isMobile ? MOBILE_GUIDE : 'مرورگرت ضبط صفحه رو پشتیبانی نمی‌کنه — با Chrome روی کامپیوتر امتحان کن.', !isMobile);
       return;
     }
     var dur = Math.max(1, Math.min(300, parseInt(durInput.value) || 20));
@@ -361,8 +377,14 @@
     mp4Btn.disabled = false;
   });
 
+  document.getElementById('fsBtn').addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', applySize);
   applySize();
-  if (!window.MediaRecorder) setStatus('این مرورگر MediaRecorder رو پشتیبانی نمی‌کنه — با Chrome امتحان کن.', true);
+  if (!canRecord) {
+    setStatus(isMobile ? MOBILE_GUIDE : 'مرورگرت ضبط صفحه رو پشتیبانی نمی‌کنه — با Chrome روی کامپیوتر امتحان کن.', !isMobile);
+  } else if (!window.MediaRecorder) {
+    setStatus('این مرورگر MediaRecorder رو پشتیبانی نمی‌کنه — با Chrome امتحان کن.', true);
+  }
 })();
 </script>
 </body>
