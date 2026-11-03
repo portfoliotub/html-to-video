@@ -6,50 +6,72 @@
 <title>HTML به ویدیو — Kali</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: Tahoma, Arial, sans-serif; background: #f5f1e8; color: #2b2620; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
-  h1 { font-size: 26px; margin: 0 0 4px; }
-  .sub { color: #6b6257; margin: 0 0 22px; font-size: 14px; line-height: 1.8; }
-  .card { background: #fdf8ec; border: 1px solid #e3d9c2; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-  .card h2 { font-size: 16px; margin: 0 0 12px; }
-  .step { display: inline-block; background: #d43d2a; color: #fff; border-radius: 50%; width: 24px; height: 24px; line-height: 24px; text-align: center; font-size: 13px; margin-left: 6px; }
-  #drop { border: 2px dashed #c9b98f; border-radius: 10px; padding: 26px 12px; text-align: center; color: #6b6257; cursor: pointer; transition: .15s; }
+  body { margin: 0; font-family: Tahoma, Arial, sans-serif; background: #f5f1e8; color: #2b2620; -webkit-text-size-adjust: 100%; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 28px 16px 60px; }
+  .badge { display: inline-block; background: #2b2620; color: #fdf8ec; font-size: 12px; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; letter-spacing: .5px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  h1 .accent { color: #d43d2a; }
+  .sub { color: #6b6257; margin: 0 0 24px; font-size: 14px; line-height: 1.9; }
+  .card { background: #fdf8ec; border: 1px solid #e3d9c2; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .card h2 { font-size: 16px; margin: 0 0 14px; }
+  .step { display: inline-block; background: #d43d2a; color: #fff; border-radius: 50%; width: 26px; height: 26px; line-height: 26px; text-align: center; font-size: 13px; margin-left: 8px; vertical-align: middle; }
+  #drop { border: 2px dashed #c9b98f; border-radius: 12px; padding: 28px 12px; text-align: center; color: #6b6257; cursor: pointer; transition: .15s; background: #fffdf6; }
   #drop.over { border-color: #d43d2a; background: #fff6e8; }
-  #drop b { color: #2b2620; }
-  textarea { width: 100%; min-height: 90px; border: 1px solid #d8cdb2; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; background: #fff; margin-top: 10px; resize: vertical; }
+  #drop b { color: #2b2620; font-size: 15px; }
+  #drop .ico { font-size: 28px; display: block; margin-bottom: 6px; }
+  textarea { width: 100%; min-height: 90px; border: 1px solid #d8cdb2; border-radius: 10px; padding: 10px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; background: #fff; margin-top: 12px; resize: vertical; }
   .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
-  button { font-family: Tahoma, Arial, sans-serif; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; cursor: pointer; }
-  .btn-red { background: #d43d2a; color: #fff; }
-  .btn-red:disabled { background: #d8a49c; cursor: not-allowed; }
+  button { font-family: Tahoma, Arial, sans-serif; border: none; border-radius: 10px; padding: 12px 20px; font-size: 14px; cursor: pointer; transition: filter .15s, transform .05s; touch-action: manipulation; }
+  button:hover { filter: brightness(1.07); }
+  button:active { transform: scale(.98); }
+  .btn-red { background: #d43d2a; color: #fff; font-weight: bold; box-shadow: 0 2px 8px rgba(212,61,42,.35); }
+  .btn-red:disabled { background: #d8a49c; cursor: not-allowed; box-shadow: none; }
   .btn-dark { background: #2b2620; color: #fff; }
   .btn-light { background: #fff; border: 1px solid #d8cdb2; color: #2b2620; }
   button:disabled { opacity: .5; cursor: not-allowed; }
-  label { font-size: 13px; }
-  select, input[type=number] { font-family: Tahoma, Arial, sans-serif; font-size: 14px; padding: 8px; border: 1px solid #d8cdb2; border-radius: 8px; background: #fff; }
-  input[type=number] { width: 80px; }
+  label { font-size: 13px; white-space: nowrap; }
+  select, input[type=number] { font-family: Tahoma, Arial, sans-serif; font-size: 14px; padding: 10px; border: 1px solid #d8cdb2; border-radius: 10px; background: #fff; min-height: 44px; }
+  input[type=number] { width: 84px; }
   #stageWrap { text-align: center; }
-  #stage { display: inline-block; background: #000; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 4px 18px rgba(0,0,0,.25); }
+  #stage { display: inline-block; background: #000; border-radius: 10px; overflow: hidden; position: relative; box-shadow: 0 4px 18px rgba(0,0,0,.25); }
   #stage iframe { display: block; border: 0; background: #fff; }
-  #timer { font-size: 22px; font-weight: bold; font-family: monospace; direction: ltr; }
+  #timer { font-size: 24px; font-weight: bold; font-family: monospace; direction: ltr; }
   .rec-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #d43d2a; margin-left: 6px; animation: blink 1s infinite; vertical-align: middle; }
   @keyframes blink { 50% { opacity: .2; } }
-  #status { font-size: 13px; line-height: 1.9; color: #6b6257; min-height: 24px; }
-  #status.err { color: #b3261e; }
-  #result video { width: 100%; border-radius: 8px; background: #000; }
-  .note { font-size: 12.5px; color: #6b6257; line-height: 2; }
+  #status { font-size: 13px; line-height: 1.9; color: #6b6257; background: #fff8e1; border: 1px solid #f0e2b8; border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
+  #status.err { color: #b3261e; background: #fdecea; border-color: #f5c6c2; }
+  #result video { width: 100%; border-radius: 10px; background: #000; }
+  .note { font-size: 12.5px; color: #6b6257; line-height: 2.1; }
   .note b { color: #2b2620; }
   a { color: #d43d2a; }
   .hidden { display: none; }
+  .foot { text-align: center; color: #a89e8d; font-size: 12px; margin-top: 8px; }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 18px 12px 48px; }
+    h1 { font-size: 23px; }
+    .sub { font-size: 13px; margin-bottom: 18px; }
+    .card { padding: 16px 14px; border-radius: 14px; }
+    .card h2 { font-size: 15px; }
+    #drop { padding: 22px 10px; }
+    .row { flex-direction: column; align-items: stretch; }
+    .row button, .row select, .row input[type=number] { width: 100%; min-height: 48px; font-size: 15px; }
+    .row label { margin-top: 2px; }
+    #timer { font-size: 28px; }
+    textarea { min-height: 76px; }
+    #fileName { text-align: center; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🎬 HTML به ویدیو</h1>
+  <span class="badge">🎬 ابزار کالی</span>
+  <h1>HTML <span class="accent">به ویدیو</span></h1>
   <p class="sub">فایل HTML انیمیشنت رو بده، پخشش می‌کنم و همون‌طور که داره پخش می‌شه ضبطش می‌کنم — خروجی ویدیو (WebM) می‌گیری، با یه کلیک هم می‌تونی به MP4 تبدیلش کنی.</p>
 
   <div class="card">
     <h2><span class="step">۱</span> فایل HTML رو انتخاب کن</h2>
-    <div id="drop"><b>فایل رو اینجا رها کن</b> یا کلیک کن و انتخابش کن<br><span style="font-size:12px">فقط فایل ‎.html — بهتره فایل self-contained باشه یا عکس‌هاش رو از اینترنت لود کنه</span></div>
+    <div id="drop"><span class="ico">📁</span><b>فایل رو اینجا رها کن</b> یا کلیک کن و انتخابش کن<br><span style="font-size:12px">فقط فایل ‎.html — بهتره فایل self-contained باشه یا عکس‌هاش رو از اینترنت لود کنه</span></div>
     <input type="file" id="fileInput" accept=".html,.htm" class="hidden">
     <textarea id="pasteBox" placeholder="...یا کد HTML رو اینجا Paste کن"></textarea>
     <div class="row">
@@ -106,17 +128,19 @@
     <p class="note">
       • ضبط <b>هم‌زمان (real-time)</b> انجام می‌شه: انیمیشن ۲۰ ثانیه‌ای، ۲۰ ثانیه طول می‌کشه تا ضبط بشه.<br>
       • فایل‌های HTML <b>صدا ندارن</b>، پس ویدیوی خروجی هم بی‌صداست — اگه موزیک می‌خوای، بعداً تو پریمیر اضافه کن.<br>
-      • کیفیت ضبط به قدرت دستگاهت بستگی داره؛ روی کامپیوتر بهتر از موبایله.<br>
+      • بهترین تجربه روی <b>کامپیوتر با Chrome</b> است؛ روی موبایل هم باز می‌شه ولی ضبط تب محدودتره.<br>
       • WebM رو یوتیوب و تلگرام قبول می‌کنن؛ اگه MP4 خواستی دکمه تبدیل رو بزن (اولین بار یه فایل ~۳۰ مگابایتی دانلود می‌شه).<br>
       • اگه انیمیشنت عکس از اینترنت لود می‌کنه، موقع ضبط اینترنت باید وصل باشه.
     </p>
   </div>
+  <p class="foot">ساخته شده برای کالی 🎬</p>
 </div>
 
 <script>
 (function(){
   var preview = document.getElementById('preview');
   var stage = document.getElementById('stage');
+  var stageWrap = document.getElementById('stageWrap');
   var fileInput = document.getElementById('fileInput');
   var drop = document.getElementById('drop');
   var pasteBox = document.getElementById('pasteBox');
@@ -153,19 +177,27 @@
   function setStatus(msg, isErr){
     statusEl.innerHTML = msg;
     statusEl.className = isErr ? 'err' : '';
+    statusEl.id = 'status';
   }
 
   function applySize(){
     var parts = sizeSel.value.split('x');
     var w = +parts[0], h = +parts[1];
     preview.width = w; preview.height = h;
-    var maxW = Math.min(760, w);
-    var scale = maxW / w;
+    var avail = stageWrap.clientWidth || 760;
+    var scale = Math.min(1, avail / w);
     stage.style.width = (w * scale) + 'px';
     stage.style.height = (h * scale) + 'px';
     preview.style.transform = 'scale(' + scale + ')';
     preview.style.transformOrigin = 'top right';
   }
+
+  var resizeTO = null;
+  window.addEventListener('resize', function(){
+    if (resizeTO) clearTimeout(resizeTO);
+    resizeTO = setTimeout(applySize, 120);
+  });
+  window.addEventListener('orientationchange', function(){ setTimeout(applySize, 300); });
 
   function loadBlob(file){
     if (htmlSource && htmlSource.type === 'blob') URL.revokeObjectURL(htmlSource.url);
